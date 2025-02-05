@@ -4,10 +4,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const { Pool } = require('pg');
 require('dotenv').config();
+const cors = require("cors");
 
 // Middleware
 app.use(express.json());
-
+app.use(cors());
 
 const pool = new Pool({
     user: process.env.POSTGRES_USER,
