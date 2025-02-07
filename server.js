@@ -1,23 +1,23 @@
 // server.js
+const createTable = require('./migration');
 const express = require("express");
-const app = express();
 const PORT = process.env.PORT || 5000;
 const { Pool } = require('pg');
 require('dotenv').config();
 const cors = require("cors");
 
+const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors());
 
 const pool = new Pool({
-    user: process.env.POSTGRES_USER,
-    database: process.env.POSTGRES_DB,
-    password: process.env.POSTGRES_PASSWORD,
+    user: process.env.DB_USER,
+    database: process.env.DB_DB,
+    password: process.env.DB_PASSWORD,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT
 });
-
 
 // Sample Route
 app.get("/", (req, res) => {
@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
 // Get all tasks
 app.get('/tasks', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM task');
+        const result = await pool.query('SELECT * FROM tasks');
         res.json(result.rows);
     } catch (err) {
         console.error(err);
@@ -39,7 +39,7 @@ app.get('/tasks', async (req, res) => {
 app.get('/tasks/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const result = await pool.query('SELECT * FROM task WHERE id = $1', [id]);
+        const result = await pool.query('SELECT * FROM tasks WHERE id = $1', [id]);
         if (result.rows.length === 0) {
             return res.status(404).send('Task not found');
         }
@@ -52,11 +52,11 @@ app.get('/tasks/:id', async (req, res) => {
 
 // Create a new task
 app.post('/tasks', async (req, res) => {
-    const { title, userid, status, description, dueDate } = req.body;
+    const { title, userEmail, status, description, dueDate } = req.body;
     try {
         const result = await pool.query(
-            'INSERT INTO task (title, userid, status, description, due_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [title, userid, status, description, dueDate]
+            'INSERT INTO tasks (title, user_email, status, description, due_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [title, userEmail, status, description, dueDate]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -65,8 +65,12 @@ app.post('/tasks', async (req, res) => {
     }
 });
 
+// Run table creation and sample data insertion before starting the server
+const startServer = async () => {
+    await createTable();
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+};
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+startServer();
