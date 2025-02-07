@@ -50,6 +50,22 @@ app.get('/tasks/:id', async (req, res) => {
     }
 });
 
+// Create a new task
+app.post('/tasks', async (req, res) => {
+    const { title, userid, status, description, due_date } = req.body;
+    try {
+        const result = await pool.query(
+            'INSERT INTO task (title, userid, status, description, due_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [title, userid, status, description, due_date]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error creating task');
+    }
+});
+
+
 // Start Server
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
