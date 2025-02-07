@@ -52,11 +52,11 @@ app.get('/tasks/:id', async (req, res) => {
 
 // Create a new task
 app.post('/tasks', async (req, res) => {
-    const { title, userid, status, description, due_date } = req.body;
+    const { title, userid, status, description, dueDate } = req.body;
     try {
         const result = await pool.query(
             'INSERT INTO task (title, userid, status, description, due_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [title, userid, status, description, due_date]
+            [title, userid, status, description, dueDate]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
