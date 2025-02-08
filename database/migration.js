@@ -1,4 +1,4 @@
-const pool = require('./database');
+const pool = require('./connection');
 
 const createTable = async () => {
   const queryText = `

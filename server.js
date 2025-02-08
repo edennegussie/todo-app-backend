@@ -1,5 +1,5 @@
 // server.js
-const createTable = require('./migration');
+const createTable = require('./database/migration');
 const express = require("express");
 const PORT = process.env.PORT || 5000;
 const { Pool } = require('pg');
